@@ -19,7 +19,7 @@ class GalaxyBrowseScript(metaclass=ABCMeta):
     @abstractmethod
     def run(self):
         """
-        #TODO
+        Parse arguments and run script.
         """
 
 
@@ -48,7 +48,8 @@ class JBrowsePrepare(GalaxyBrowseScript):
             for dataset in args.input:
                 self.files.append((dataset[0], dataset[1]))  # (path, name)
         else:
-            raise AttributeError('Select at least one dataset!')  # TODO not possible due to xml?
+            raise AttributeError('Select at least one dataset!')
+            # this should not happen due to specifications in wrapper file
 
         filetype = args.filetype[0].split(' ')
         if len(filetype) == 2:
@@ -63,7 +64,8 @@ class JBrowsePrepare(GalaxyBrowseScript):
                 for dataset in args.input_index:
                     self.index_dict[dataset[0]] = dataset[1]  # path of vcf : path of tbi
             if set([x[0] for x in self.files]) | set(list(self.index_dict.keys())) != set([x[0] for x in self.files]):
-                raise AttributeError('Select tabix index file for every dataset!')  # TODO not possible due to xml?
+                raise AttributeError('Select tabix index file for every dataset!')
+                # this should not happen due to specifications in wrapper file
 
         # configuration options have priority
         if args.option:
@@ -92,12 +94,13 @@ class JBrowsePrepare(GalaxyBrowseScript):
         if len(set(list(self.options.keys())) - set(supported)) != 0:
             print('WARNING: Some configuration options are not recognized.',
                   'Please refer to "Advanced configuration options" section below.')
+            # TODO: Add to documentation:
             # TODO: uploading might not be successful, consider double-checking spelling and editing
             # TODO: trackList.json or tracks.conf files for more advanced configuration
 
         self.__prepare_with_options()
 
-    def __prepare_with_options(self):  # TODO underscore to suggest privacy in place of chcecking self args?
+    def __prepare_with_options(self):
         with open(self.output, 'w') as out:
             data = {'files': []}
             number_of_files = len(self.files)
@@ -183,7 +186,8 @@ class JBrowseAdd(GalaxyBrowseScript):
             raise ValueError('JBrowse instance not ready for file uploading. '
                              'Add reference sequence to your browser before running script.')
 
-        # if not os.access(self.jbrowse, os.W_OK): #TODO on regulomics (chown? no sudo priv)
+        # TODO make sure access is preserved when galaxy and jbrowse are on different servers
+        # if not os.access(self.jbrowse, os.W_OK):
         #     raise OSError('Jbrowse directory is not writable. Please set up appropriate privileges for Galaxy user')
 
         self.__set_up_file_structure()
@@ -304,9 +308,10 @@ class JBrowseAdd(GalaxyBrowseScript):
             with open(os.path.join('data', 'trackList.json'), 'w') as trackfile:
                 json.dump(trackdata, trackfile)
 
-        else:  # TODO: not possible due to xml?
+        else:
             self.output_handle.write(
                 "File type " + data["file_type"] + " not supported! File " + dataset + " is omitted.\n")
+            # this should not happen due to specifications in wrapper file
 
 
 class JBrowseRemove(GalaxyBrowseScript):
