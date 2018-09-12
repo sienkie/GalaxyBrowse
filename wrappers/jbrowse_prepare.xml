@@ -1,0 +1,119 @@
+<tool id="jbrowsePrepare" name="JBrowse Prepare">
+
+    <requirements></requirements>
+
+    <description>files for export to JBrowse</description>
+
+    <command interpreter="python3">
+        ../galaxybrowse.py prepare --output "$output"
+
+        #if $file_type['file_type_selector'] == "type_flatfile":
+            --filetype "flat"
+            #for $input in $file_type['files_flat']:
+                #if $input:
+                    --input "$input" "$input.name"
+                #end if
+            #end for
+            #if $file_type['series_flat']:
+                #for $s in $file_type['series_flat']:
+                    --option "$s.opt" "$s.opt_val"
+                #end for
+            #end if
+            #if $file_type['options_flat']:
+                --options_file "$file_type['options_flat']"
+            #end if
+
+        #elif $file_type['file_type_selector'] == "type_wiggle":
+            --filetype "wiggle $file_type['type']"
+            #for $input in $file_type['files_wiggle']:
+                #if $input:
+                    --input "$input" "$input.name"
+                #end if
+            #end for
+            #if $file_type['series_wiggle']:
+                #for $s in $file_type['series_wiggle']:
+                    --option "$s.opt" "$s.opt_val"
+                #end for
+            #end if
+            #if $file_type['options_wiggle']:
+                --options_file "$file_type['options_wiggle']"
+            #end if
+
+        #else:
+            --filetype "variant"
+            #if $file_type['series_variant_files']:
+                #for s in $file_type['series_variant_files']:
+                    --input "$s.file_variant" "$s.file_variant.name"
+                    --input_index "$s.file_variant" "$s.index_variant"
+                #end for
+            #end if
+            #if $file_type['series_variant']:
+                #for $s in $file_type['series_variant']:
+                    --option "$s.opt" "$s.opt_val"
+                #end for
+            #end if
+            #if $file_type['options_variant']:
+                --options_file "$file_type['options_variant']"
+            #end if
+        #end if
+    </command>
+
+    <inputs>
+        <conditional name="file_type">
+            <param name="file_type_selector" type="select" label="File type">
+                <option value="type_flatfile" selected="true">Flat files [*.bed]</option>
+                <option value="type_wiggle">Wiggle files [*.bigwig]</option>
+                <option value="type_variant">Variant files [*.vcf]</option>
+            </param>
+            <when value="type_flatfile">
+                <param name="files_flat" format="bed" multiple="True" type="data" optional="False"
+                       label="Data files"/>
+                <param name="options_flat" format="tsv" multiple="False" type="data" optional="True"
+                       label="Tab delimited file with configuration options"/>
+                <repeat name="series_flat" title="Custom configuration options">
+                    <param name="opt" size="100" type="text" label="Option"/>
+                    <param name="opt_val" size="100" type="text" label="Value"/>
+                </repeat>
+            </when>
+            <when value="type_wiggle">
+                <param name="files_wiggle" format="bw,bigwig" multiple="True" type="data" optional="False"
+                       label="Data files"/>
+                <param name="type" type="select" label="Type of visualization">
+                    <option value="XYPlot" selected="true">XYPlot (histogram like)</option>
+                    <option value="Density">Density plot (heatmap like)</option>
+                </param>
+                <param name="options_wiggle" format="tsv" multiple="False" type="data" optional="True"
+                       label="Tab delimited file with configuration options"/>
+                <repeat name="series_wiggle" title="Custom configuration options">
+                    <param name="opt" size="100" type="text" label="Option"/>
+                    <param name="opt_val" size="100" type="text" label="Value"/>
+                </repeat>
+            </when>
+            <when value="type_variant">
+                <repeat name="series_variant_files" title="Variant file"
+                        help="VCF files must be compressed with bgzip and indexed with tabix,
+                        both of which are part of the samtools package. Due to requirement of using compressed files,
+                        consider uploading files via 'Link files instead of copying' option.">
+                    <param name="file_variant" format="vcf_bgzip" multiple="False" type="data" optional="False"
+                           label="Data file"/>
+                    <param name="index_variant" format="tabix" multiple="False" type="data" optional="False"
+                           label="Tabix index file"/>
+                </repeat>
+                <param name="options_variant" format="tsv" multiple="False" type="data" optional="True"
+                       label="Tab delimited file with configuration options"/>
+                <repeat name="series_variant" title="Custom configuration options">
+                        <param name="opt" size="100" type="text" label="Option"/>
+                        <param name="opt_val" size="100" type="text" label="Value"/>
+                </repeat>
+            </when>
+        </conditional>
+    </inputs>
+
+    <outputs>
+        <data name="output" format="json" label="${tool.name} on ${on_string}"/>
+    </outputs>
+
+    <help></help>
+
+</tool>
+
