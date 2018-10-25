@@ -62,8 +62,7 @@ flatfile_style = [
 
 wiggle_options = [
     'yScalePosition',
-    'origin_color',
-    'bg_color',
+    'origin_color'
     'scale',
     'min_score',
     'max_score',
@@ -83,6 +82,7 @@ wiggle_options = [
 
 wiggle_style = [
     'pos_color',
+    'bg_color',
     'neg_color',
     'clip_marker_color',
     'height'
