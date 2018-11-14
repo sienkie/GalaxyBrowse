@@ -72,7 +72,10 @@ class JBrowsePrepare(GalaxyBrowseScript):
             for opt in args.option:
                 if opt[0]:
                     if opt[0] not in self.options.keys():
-                        self.options[opt[0]] = opt[1]
+                        for key, value in mapped_chars.items():
+                            # Unsanitize default element_identifiers sanitization by Galaxy
+                            formated_opt = opt[1].replace(value, key)
+                        self.options[opt[0]] = formated_opt
                     else:
                         print('WARNING: Some configuration options were omitted due to being repeated.')
 
